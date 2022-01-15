@@ -16,6 +16,10 @@ const min_cost = NEAR.parse("0.01 N");
 const runner = Workspace.init(
   { initialBalance: NEAR.parse("15 N").toString() },
   async ({ root }) => {
+    // root will be test.near
+
+    // the contract will be deployed on tenk.test.near
+    // and new_default_meta function is being called to initialize it
     const tenk = await deploy(root, "tenk", { base_cost, min_cost });
     return { tenk };
   }
@@ -27,14 +31,12 @@ runner.test("can get cost per token", async (t, { tenk }) => {
   t.log(
     "One token costs " +
       cost.toHuman() +
-      "to buy and " + 
+      "to buy and " +
       storageCost.toHuman() +
       " to store"
   );
-  t.deepEqual(
-    cost.toBigInt(),
-    base_cost.add(storageCost).toBigInt()
-  );
+
+  t.deepEqual(cost.toBigInt(), base_cost.add(storageCost).toBigInt());
   if (cost.toBigInt() > 0) {
     t.assert(cost.gt(await costPerToken(tenk, 24)));
   }

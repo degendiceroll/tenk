@@ -1,6 +1,15 @@
 # Commands
 
 ```sh
+# Running Codes
+
+yarn test # Running all tests
+yarn test --help # To get help
+yarn test __test__/nft.ava.ts # Runnings tests in specific file
+yarn test __test__/nft.ava.ts -c 1 -v # concurrency is 1 and verbose mode
+
+# RPC Calls
+
 near deploy --wasmFile target/wasm32-unknown-unknown/release/tenk.wasm --accountId flyingsaucertenk.testnet
 
 near call flyingsaucertenk.testnet new_default_meta --accountId flyingsaucertenk.testnet '{"owner_id": "flyingsaucertenk.testnet", "name": "NDN", "symbol": "NDN", "uri": "https://pixabay.com/images/", "size": 10, "base_cost": "1", "min_cost": "1"}'

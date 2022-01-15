@@ -137,6 +137,7 @@ async function assertXTokens(t, root: NearAccount, tenk, num) {
 });
 
 async function userMintsNFTs(t, user: NearAccount, tenk, num) {
+  const numPriorHoldings = (await nftTokensForOwner(user, tenk)).length;
   const method = num == 1 ? "nft_mint_one" : "nft_mint_many";
   let args = num == 1 ? {} : { num };
   const cost = await totalCost(tenk, num, user.accountId);
@@ -158,7 +159,7 @@ async function userMintsNFTs(t, user: NearAccount, tenk, num) {
   t.true(res.succeeded, [res.Failure, ...res.promiseErrorMessages].join("\n"));
   const userBalanceAfter = (await user.balance()).available.toHuman();
   t.log(`Balance After: ${userBalanceAfter}`);
-  t.is(num, (await nftTokensForOwner(user, tenk)).length);
+  t.is(num, (await nftTokensForOwner(user, tenk)).length - numPriorHoldings);
   if (num == 30 && Workspace.networkIsTestnet()) {
     await deployEmpty(tenk);
   }
@@ -185,4 +186,33 @@ async function getDetailedViewOfNFT(t, user: NearAccount, tenk) {
 
 runner.test("detailed view of NFT ", async (t, { bob, tenk }) => {
   await getDetailedViewOfNFT(t, bob, tenk);
+});
+
+async function mintingAllNFTs(t, root: NearAccount, tenk) {
+  const whale = await createNewAccout(root, "whale", "2000 N");
+  for (let i = 0; i < 10; i++) {
+    await userMintsNFTs(t, whale, tenk, 10);
+    const tokens_left = await tenk.view("tokens_left");
+    t.log(`Number of tokens left: ${tokens_left}`);
+  }
+
+  t.log(`Number of Holdings: ${(await nftTokensForOwner(whale, tenk)).length}`);
+
+  const method = "nft_mint_one";
+  const cost = await totalCost(tenk, 1, whale.accountId);
+
+  await whale.call_raw(
+    tenk,
+    method,
+    {},
+    {
+      attachedDeposit: cost,
+      gas: MINT_ONE_GAS,
+    }
+  );
+  t.is(100, (await nftTokensForOwner(whale, tenk)).length);
+}
+
+runner.test("Try minting all NFTs", async (t, { root, tenk }) => {
+  await mintingAllNFTs(t, root, tenk);
 });

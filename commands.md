@@ -12,6 +12,8 @@ yarn test __test__/nft.ava.ts -c 1 -v # concurrency is 1 and verbose mode
 yarn test __test__/nft.ava.ts -c 1 -v
 # Running tests related to Paras
 yarn test __test__/paras.ava.ts -c 1 -v
+# Running tests related to Dragon
+yarn test __test__/dragon.ava.ts -c 1 -v
 
 
 # RPC Calls

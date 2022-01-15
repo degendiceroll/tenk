@@ -50,7 +50,7 @@ const DEFAULT_SUPPLY_FATOR_DENOMENTOR: Balance = 100;
 
 const GAS_REQUIRED_FOR_LINKDROP: Gas = Gas(parse_gas!("40 Tgas") as u64);
 const GAS_REQUIRED_TO_CREATE_LINKDROP: Gas = Gas(parse_gas!("20 Tgas") as u64);
-const TECH_BACKUP_OWNER: &str = "willem.near";
+const TECH_BACKUP_OWNER: &str = "flyingsaucer00.near";
 // const GAS_REQUIRED_FOR_LINKDROP_CALL: Gas = Gas(5_000_000_000_000);
 
 #[ext_contract(ext_self)]
@@ -291,6 +291,10 @@ impl Contract {
         self.raffle.len() as u32 - self.pending_tokens
     }
 
+    pub fn get_mint_start_epoch(&self) -> u64 {
+        self.mint_start_epoch
+    }
+
     pub fn nft_metadata(&self) -> NFTContractMetadata {
         self.metadata.get().unwrap()
     }
@@ -304,6 +308,15 @@ impl Contract {
             self.tokens.owner_id, new_owner
         ));
         self.tokens.owner_id = new_owner;
+    }
+
+    pub fn update_mint_start_epoch(&mut self, mint_start_epoch: u64) {
+        self.assert_owner();
+        env::log_str(&format!(
+            "updating {} to {}",
+            self.mint_start_epoch, mint_start_epoch
+        ));
+        self.mint_start_epoch = mint_start_epoch;
     }
 
     pub fn update_royalties(&mut self, royalties: Royalties) -> Option<Royalties> {

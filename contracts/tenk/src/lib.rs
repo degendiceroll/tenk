@@ -34,6 +34,7 @@ pub struct Contract {
     // Vector of available NFTs
     raffle: Raffle,
     pending_tokens: u32,
+    mint_start_epoch: u64,
     // Linkdrop fields will be removed once proxy contract is deployed
     pub accounts: LookupMap<PublicKey, bool>,
     pub base_cost: Balance,
@@ -94,6 +95,7 @@ impl Contract {
         size: u32,
         base_cost: U128,
         min_cost: U128,
+        mint_start_epoch: Option<u64>,
         percent_off: Option<u8>,
         icon: Option<String>,
         spec: Option<String>,
@@ -118,6 +120,7 @@ impl Contract {
             size,
             base_cost,
             min_cost,
+            mint_start_epoch.unwrap_or(0),
             percent_off.unwrap_or(DEFAULT_SUPPLY_FATOR_NUMERATOR),
             royalties,
             initial_royalties,
@@ -131,6 +134,7 @@ impl Contract {
         size: u32,
         base_cost: U128,
         min_cost: U128,
+        mint_start_epoch: u64,
         percent_off: u8,
         royalties: Option<Royalties>,
         initial_royalties: Option<Royalties>,
@@ -147,6 +151,7 @@ impl Contract {
             metadata: LazyOption::new(StorageKey::Metadata, Some(&metadata)),
             raffle: Raffle::new(StorageKey::Ids, size as u64),
             pending_tokens: 0,
+            mint_start_epoch: mint_start_epoch,
             accounts: LookupMap::new(StorageKey::LinkdropKeys),
             base_cost: base_cost.0,
             min_cost: min_cost.0,
@@ -341,6 +346,11 @@ impl Contract {
     }
 
     fn assert_can_mint(&self, num: u32) {
+        // Check mint_start_epoch
+        require!(
+            self.mint_start_epoch * 1000000000 <= env::block_timestamp(),
+            "Mint has not started yet"
+        );
         // Check quantity
         require!(self.tokens_left() >= num, "No NFTs left to mint");
         // Owner can mint for free
@@ -447,6 +457,7 @@ mod tests {
             10_000,
             TEN.into(),
             ONE.into(),
+            None,
             None,
             None,
             None,

@@ -70,6 +70,7 @@ const runner = Workspace.init(
       symbol: "NFN",
       uri: "https://bafybeiehqz6vklvxkopg3un3avdtevch4cywuihgxrb4oio2qgxf4764bi.ipfs.dweb.link/",
       size: 100,
+      mint_start_epoch: 1642264405,
       base_cost,
       min_cost,
       royalties,

@@ -188,12 +188,18 @@ runner.test("detailed view of NFT ", async (t, { bob, tenk }) => {
   await getDetailedViewOfNFT(t, bob, tenk);
 });
 
-async function mintingAllNFTs(t, root: NearAccount, tenk) {
+async function mintingAllNFTs(
+  t,
+  root: NearAccount,
+  deployer: NearAccount,
+  tenk
+) {
   const whale = await createNewAccout(root, "whale", "2000 N");
   for (let i = 0; i < 10; i++) {
     await userMintsNFTs(t, whale, tenk, 10);
     const tokens_left = await tenk.view("tokens_left");
     t.log(`Number of tokens left: ${tokens_left}`);
+    await printBalance(t, deployer);
   }
 
   t.log(`Number of Holdings: ${(await nftTokensForOwner(whale, tenk)).length}`);
@@ -213,6 +219,6 @@ async function mintingAllNFTs(t, root: NearAccount, tenk) {
   t.is(100, (await nftTokensForOwner(whale, tenk)).length);
 }
 
-runner.test("Try minting all NFTs", async (t, { root, tenk }) => {
-  await mintingAllNFTs(t, root, tenk);
+runner.test("Try minting all NFTs", async (t, { root, eve, tenk }) => {
+  await mintingAllNFTs(t, root, eve, tenk);
 });

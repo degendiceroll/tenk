@@ -1,6 +1,10 @@
 # Commands
 
 ```sh
+# Upload assets
+
+ts-node scripts/nft-uploader-launch.ts
+
 # Running Codes
 
 yarn test # Running all tests

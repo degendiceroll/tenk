@@ -8,17 +8,21 @@ declare interface File {
 }
 
 function here(s = ""): string {
-  return path.join(__dirname, "tenK_initial_100", s);
+  return path.join(__dirname, "../assets/test_assets/images", s);
 }
 
 const id_regex = /^(?<id>[0-9]+)/;
 
-function getInfo(file: string): { id: string; info: any } {
+async function getInfo(file: string): Promise<{ id: string; info: any }> {
+  const id_ = file.match(id_regex).groups.id;
+  const json_ = (
+    await fs.readFile(
+      path.join(__dirname, "../assets/test_assets/jsons", `${id_}.json`)
+    )
+  ).toString();
   return {
-    ...file.match(id_regex).groups as {id: string},
-    info: JSON.stringify({
-      repo: "https://github.com/willemneal/tenk",
-    }),
+    id: id_,
+    info: json_,
   };
 }
 
@@ -26,7 +30,7 @@ async function parseFiles(): Promise<typeof File[][]> {
   const directory = await fs.readdir(here());
   const files = await Promise.all(
     directory.map(async (file) => {
-      const { id, info } = getInfo(file);
+      const { id, info } = await getInfo(file);
       console.log(id, info);
       return [
         new File([await fs.readFile(here(file))], `${id}.png`),

@@ -10,8 +10,8 @@ import {
   deploy,
 } from "./util";
 
-const base_cost = NEAR.parse("1 N");
-const min_cost = NEAR.parse("0.01 N");
+const base_cost = NEAR.parse("5 N");
+const min_cost = NEAR.parse("5 N");
 
 const createNewAccout = async (
   root: NearAccount,
@@ -36,8 +36,8 @@ const runner = Workspace.init(
     const rootBalance = await root.balance();
     const rootBalanceHuman = rootBalance.available.toHuman();
     console.log({ rootBalanceHuman });
-    const alice = await createNewAccout(root, "alice", "50 N");
-    const bob = await createNewAccout(root, "bob", "15 N");
+    const alice = await createNewAccout(root, "alice", "200 N");
+    const bob = await createNewAccout(root, "bob", "150 N");
     // the contract will be deployed on tenk.test.near
     // and new_default_meta function is being called to initialize it
     const tenk = await deploy(root, "tenk", { base_cost, min_cost });
@@ -64,7 +64,7 @@ runner.test("can get cost per token", async (t, { tenk }) => {
 
   t.deepEqual(cost.toBigInt(), base_cost.add(storageCost).toBigInt());
   if (cost.toBigInt() > 0) {
-    t.assert(cost.gt(await costPerToken(tenk, 24)));
+    t.assert(cost.gte(await costPerToken(tenk, 24)));
   }
 });
 
@@ -100,7 +100,12 @@ async function assertXTokens(t, root: NearAccount, tenk, num) {
 async function userMintsNFTs(t, user: NearAccount, tenk, num) {
   const method = num == 1 ? "nft_mint_one" : "nft_mint_many";
   let args = num == 1 ? {} : { num };
-  const cost = await totalCost(tenk, num);
+  const cost = await totalCost(tenk, num, user.accountId);
+
+  t.log(
+    "Cost for root to mint",
+    (await totalCost(tenk, num, "test.near")).toHuman()
+  );
 
   t.log(
     `${user.accountId} is minting: ${num} tokens costing ` + cost.toHuman()

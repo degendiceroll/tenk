@@ -19,6 +19,8 @@ yarn test __test__/paras.ava.ts -c 1 -v
 # Running tests related to Dragon
 yarn test __test__/dragon.ava.ts -c 1 -v
 
+# Running a specfic test function
+yarn test __test__/dragon.ava.ts -c 1 -v --match="Try minting all NFTs"
 
 # RPC Calls
 

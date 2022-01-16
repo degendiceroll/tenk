@@ -1,6 +1,13 @@
 import { Workspace, NearAccount, ONE_NEAR } from "near-willem-workspaces-ava";
 import { NEAR, Gas } from "near-units";
-import { nftTokensForOwner, mint, BalanceDelta, deploy, totalCost } from "./util";
+import {
+  nftTokensForOwner,
+  mint,
+  BalanceDelta,
+  deploy,
+  totalCost,
+} from "./util";
+import { printBalance } from "./dragon_utils";
 
 function getRoyalties({ root, alice, eve }) {
   return {
@@ -42,7 +49,7 @@ const runner = Workspace.init(
     const bob = await root.createAccount("bob");
     const eve = await root.createAccount("eve");
     const royalties = getRoyalties({ root, alice, eve });
-    const tenk = await deploy(root, "tenk", {royalties});
+    const tenk = await deploy(root, "tenk", { royalties });
     const token_id = await mint(tenk, bob, await totalCost(tenk, 1));
 
     const paras = await delpoyParas(root, root, root, [tenk]);
@@ -72,11 +79,11 @@ const runner = Workspace.init(
         attachedDeposit: ONE_NEAR,
       }
     );
-    return { tenk, paras, eve, bob };
+    return { tenk, paras, eve, bob, alice };
   }
 );
 
-runner.test("buy one", async (t, { root, tenk, paras, bob, eve }) => {
+runner.test("buy one", async (t, { root, tenk, paras, bob, eve, alice }) => {
   const bob2 = await root.createAccount("bob2");
   const ids = await nftTokensForOwner(bob, tenk);
   t.is(ids.length, 1);
@@ -93,6 +100,13 @@ runner.test("buy one", async (t, { root, tenk, paras, bob, eve }) => {
   const bobDelta = await BalanceDelta.create(bob, t);
   const bob2Delta = await BalanceDelta.create(bob2, t);
 
+  t.log("Before bob2 buys from bob");
+  await printBalance(t, bob);
+  await printBalance(t, bob2);
+  await printBalance(t, eve);
+  await printBalance(t, alice);
+  await printBalance(t, root);
+
   const res = await bob2.call_raw(
     paras,
     "buy",
@@ -105,6 +119,13 @@ runner.test("buy one", async (t, { root, tenk, paras, bob, eve }) => {
       attachedDeposit: ONE_NEAR,
     }
   );
+
+  t.log("After bob2 buys from bob");
+  await printBalance(t, bob);
+  await printBalance(t, bob2);
+  await printBalance(t, eve);
+  await printBalance(t, alice);
+  await printBalance(t, root);
 
   await bob2Delta.isLessOrEqual(ONE_NEAR.neg());
   await bobDelta.isGreaterOrEqual(NEAR.parse("750 mN"));

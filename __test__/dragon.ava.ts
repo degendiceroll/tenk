@@ -218,6 +218,12 @@ async function mintingAllNFTs(
     }
   );
   t.is(100, (await nftTokensForOwner(whale, tenk)).length);
+
+  const mintedNFTs = await nftTokensForOwner(whale, tenk);
+  const tokenIdList = mintedNFTs
+    .map((nft) => nft?.token_id)
+    .sort((a, b) => parseInt(a) - parseInt(b));
+  t.log({ tokenIdList });
 }
 
 runner.test("Try minting all NFTs", async (t, { root, eve, tenk }) => {

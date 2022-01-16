@@ -24,6 +24,12 @@ yarn test __test__/premint.ava.ts -c 1 -v
 # Running a specfic test function
 yarn test __test__/dragon.ava.ts -c 1 -v --match="Try minting all NFTs"
 
+# Running tests on testnet
+
+yarn test:testnet __test__/paras.ava.ts -c 1 -v
+yarn test:testnet __test__/premint.ava.ts -c 1 -v
+yarn test:testnet __test__/dragon.ava.ts -c 1 -v --match="can get cost per token"
+
 # RPC Calls
 
 near deploy --wasmFile target/wasm32-unknown-unknown/release/tenk.wasm --accountId ndnflying.testnet

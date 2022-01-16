@@ -45,6 +45,7 @@ const runner = Workspace.init(
   { initialBalance: NEAR.parse("15 N").toString() },
   async ({ root }) => {
     const owner_id = root;
+    await printBalance(console, root);
     const alice = await root.createAccount("alice");
     const bob = await root.createAccount("bob");
     const eve = await root.createAccount("eve");

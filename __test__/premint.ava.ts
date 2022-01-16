@@ -7,9 +7,10 @@ import { deploy, getTokens, sleep } from "./util";
 const sale_price = NEAR.parse("5 N");
 
 const runner = Workspace.init(
-  { initialBalance: NEAR.parse("20 N").toString() },
+  { initialBalance: NEAR.parse("100 N").toString() },
   async ({ root }) => {
-    const alice = await createNewAccount(console, root, "alice", "100 N");
+    console.log({ rootId: root.accountId });
+    const alice = await createNewAccount(console, root, "alice", "50 N");
     const epochNext20sec = dayjs().unix() + 20;
     const epochNext60sec = dayjs().unix() + 60;
     const tenk = await deploy(root, "tenk", {

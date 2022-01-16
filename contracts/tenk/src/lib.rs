@@ -192,10 +192,14 @@ impl Contract {
         self.whitelist.contains_key(&account_id)
     }
 
-    #[cfg(not(feature = "mainnet"))]
-    pub fn add_whitelist_account_ungaurded(&mut self, account_id: AccountId, allowance: u32) {
-        self.whitelist.insert(&account_id, &allowance);
+    pub fn get_wl_allowance(&self, account_id: AccountId) -> u32 {
+        self.get_whitelist_allowance(&account_id)
     }
+
+    // #[cfg(not(feature = "mainnet"))]
+    // pub fn add_whitelist_account_ungaurded(&mut self, account_id: AccountId, allowance: u32) {
+    //     self.whitelist.insert(&account_id, &allowance);
+    // }
 
     pub fn start_premint(&mut self, duration: u64) {
         self.assert_owner();

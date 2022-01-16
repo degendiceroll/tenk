@@ -5,7 +5,7 @@ jobs:
     strategy:
       matrix:
         platform: [ubuntu-latest]
-        node-version: ['14']
+        node-version: ["14"]
         toolchain: [stable]
     runs-on: ${{ matrix.platform }}
     steps:
@@ -24,4 +24,4 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
       - name: Run tests
-        run: yarn && yarn test:linkdrop
+        run: yarn && yarn test:testnet

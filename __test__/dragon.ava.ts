@@ -13,7 +13,7 @@ import {
 const base_cost = NEAR.parse("5 N");
 const min_cost = NEAR.parse("5 N");
 
-const createNewAccout = async (
+const createNewAccount = async (
   root: NearAccount,
   accountName: string,
   initialBalance: string = "15 N"
@@ -195,7 +195,7 @@ async function mintingAllNFTs(
   deployer: NearAccount,
   tenk
 ) {
-  const whale = await createNewAccout(root, "whale", "2000 N");
+  const whale = await createNewAccount(root, "whale", "2000 N");
   for (let i = 0; i < 10; i++) {
     await userMintsNFTs(t, whale, tenk, 10);
     const tokens_left = await tenk.view("tokens_left");

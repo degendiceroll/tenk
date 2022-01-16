@@ -13,7 +13,7 @@ import {
 const base_cost = NEAR.parse("5 N");
 const min_cost = NEAR.parse("5 N");
 
-const createNewAccout = async (
+const createNewAccount = async (
   root: NearAccount,
   accountName: string,
   initialBalance: string = "15 N"
@@ -36,8 +36,8 @@ const runner = Workspace.init(
     const rootBalance = await root.balance();
     const rootBalanceHuman = rootBalance.available.toHuman();
     console.log({ rootBalanceHuman });
-    const alice = await createNewAccout(root, "alice", "200 N");
-    const bob = await createNewAccout(root, "bob", "150 N");
+    const alice = await createNewAccount(root, "alice", "200 N");
+    const bob = await createNewAccount(root, "bob", "150 N");
     // the contract will be deployed on tenk.test.near
     // and new_default_meta function is being called to initialize it
     const tenk = await deploy(root, "tenk", { base_cost, min_cost });

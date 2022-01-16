@@ -14,7 +14,7 @@
     "delpoy:mainnet": "yarn build:mainnet && near repl -s ./scripts/deploy-zodiac.js",
     "createKeys": "ts-node ./scripts/create-keys.ts",
     "createLinkUrls": "ts-node ./scripts/create-linkdrops-urls.ts",
-    "createLinkdrops":"near repl -s ./scripts/create-linkdrops.js",
+    "createLinkdrops": "near repl -s ./scripts/create-linkdrops.js",
     "addWhitelist": "near repl -s ./scripts/add-whitelist.js",
     "test:unit": "cargo test",
     "test:ci": "yarn test:unit && yarn test",
@@ -27,9 +27,12 @@
     "acquit-markdown": "^0.1.0",
     "eslint": "^7.29.0",
     "near-api-js": "^0.44.1",
+    "near-cli": "git+https://github.com/willemneal/near-cli#feat/script_command",
     "near-units": "^0.1.9",
     "near-willem-workspaces-ava": "^1.0.3-alpha.0",
-    "nft.storage": "^5.0.0",
-    "near-cli": "git+https://github.com/willemneal/near-cli#feat/script_command"
+    "nft.storage": "^5.0.0"
+  },
+  "dependencies": {
+    "dayjs": "^1.10.7"
   }
 }

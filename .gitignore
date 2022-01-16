@@ -33,3 +33,6 @@ yarn-debug.log*
 yarn-error.log*
 
 .near-credentials/
+
+assets/test_assets
+assets/main_assets

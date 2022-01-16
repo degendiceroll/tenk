@@ -29,7 +29,7 @@ const sale_price = NEAR.parse("5 N");
 // const contract = "zodiac.tenk.near";
 
 void Workspace.open(
-  { network, rootAccount: "app3.ndnflying.testnet" },
+  { network, rootAccount: "app5.ndnflying.testnet" },
   async ({ root }) => {
     const rootBalance = await root.availableBalance();
     // if (rootBalance.lt(NEAR.parse("350 N"))) {
@@ -43,6 +43,14 @@ void Workspace.open(
         "flyingsaucer00.testnet": 50,
       },
       percent: 20,
+    };
+
+    const initial_royalties = {
+      accounts: {
+        "flyingsaucertenk.testnet": 50,
+        "flyingsaucer00.testnet": 50,
+      },
+      percent: 100,
     };
 
     const accountView = await root.accountView();
@@ -64,7 +72,7 @@ void Workspace.open(
             base_cost: sale_price,
             min_cost: sale_price,
             royalties,
-            initial_royalties: royalties,
+            initial_royalties,
           },
           {
             gas: Gas.parse("20 TGas"),

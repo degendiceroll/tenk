@@ -3,33 +3,33 @@ import { Workspace, NEAR, Gas } from "near-willem-workspaces";
 import { CONTRACT_PATH } from "../__test__/util/bin";
 
 const network = "testnet";
-const uri =
-  "https://bafybeiffwsfco67klvesltd7yavfpdf5jov2a27ykhcyhoqhih7f6lrkmu.ipfs.dweb.link/";
+// const uri =
+//   "https://bafybeigulzte3aqfco5fmh6hxq7ul7qhdpguecx4aogoq4ejxp3w3cupdm.ipfs.dweb.link/";
+const sale_price = NEAR.parse("5 N");
 
-const sale_price = NEAR.parse("0.8 N");
+// const initial_royalties = {
+//   percent: 100,
+//   accounts: {
+//     "tenk.sputnik-dao.near": 2,
+//     "near-cn-nft-club.sputnik-dao.near": 15,
+//     "ca2079.sputnik-dao.near": 83,
+//   },
+// };
 
-const initial_royalties = {
-  percent: 100,
-  accounts: {
-    "tenk.sputnik-dao.near": 2,
-    "near-cn-nft-club.sputnik-dao.near": 15,
-    "ca2079.sputnik-dao.near": 83,
-  },
-};
+// const royalties = {
+//   percent: 10,
+//   accounts: { "tenk.sputnik-dao.near": 20, "ca2079.sputnik-dao.near": 80 },
+// };
 
-const royalties = {
-  percent: 10,
-  accounts: { "tenk.sputnik-dao.near": 20, "ca2079.sputnik-dao.near": 80 },
-};
-
-const icon = "https://bafybeihcrg5rv647uq5akyduswxu2fv2mxrsh65c3upbx5nr2p5x6hfwza.ipfs.dweb.link/tongdao.jpeg";
-const name = "TD12 Zodiac Club";
-const symbol= "TD12ZC";
-const initial_price = NEAR.parse("1.6 N");
-const contract = "zodiac.tenk.near"
+// const icon =
+//   "https://bafybeihcrg5rv647uq5akyduswxu2fv2mxrsh65c3upbx5nr2p5x6hfwza.ipfs.dweb.link/tongdao.jpeg";
+// const name = "TD12 Zodiac Club";
+// const symbol = "TD12ZC";
+// const initial_price = NEAR.parse("1.6 N");
+// const contract = "zodiac.tenk.near";
 
 void Workspace.open(
-  { network, rootAccount: "tongv0.tenk.testnet" },
+  { network, rootAccount: "app3.ndnflying.testnet" },
   async ({ root }) => {
     const rootBalance = await root.availableBalance();
     // if (rootBalance.lt(NEAR.parse("350 N"))) {
@@ -38,11 +38,16 @@ void Workspace.open(
     // }
 
     const royalties = {
-      accounts: { "tenk.testnet": 20, meta: 70, "eve.testnet": 10 },
+      accounts: {
+        "flyingsaucertenk.testnet": 50,
+        "flyingsaucer00.testnet": 50,
+      },
       percent: 20,
     };
+
     const accountView = await root.accountView();
     const owner_id = root.accountId;
+    console.log({ owner_id }, accountView.code_hash);
     if (accountView.code_hash == "11111111111111111111111111111111") {
       const tx = await root
         .createTransaction(root)
@@ -52,11 +57,10 @@ void Workspace.open(
           "new_default_meta",
           {
             owner_id,
-            name,
-            symbol,
-            icon,
-            uri,
-            size: 12000,
+            name: "Near Dragon Nation",
+            symbol: "NDN",
+            uri: "https://bafybeigulzte3aqfco5fmh6hxq7ul7qhdpguecx4aogoq4ejxp3w3cupdm.ipfs.dweb.link/",
+            size: 13,
             base_cost: sale_price,
             min_cost: sale_price,
             royalties,

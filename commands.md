@@ -30,6 +30,12 @@ yarn test:testnet __test__/paras.ava.ts -c 1 -v
 yarn test:testnet __test__/premint.ava.ts -c 1 -v
 yarn test:testnet __test__/dragon.ava.ts -c 1 -v --match="can get cost per token"
 
+# Create new testnet account and deploy contract there
+
+near create-account app2.ndnflying.testnet --masterAccount ndnflying.testnet --initialBalance 15
+# Edit scripts/deploy.ts
+yarn deploy:testnet
+
 # RPC Calls
 
 near deploy --wasmFile target/wasm32-unknown-unknown/release/tenk.wasm --accountId ndnflying.testnet

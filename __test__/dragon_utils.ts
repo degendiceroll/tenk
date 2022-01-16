@@ -56,13 +56,14 @@ export async function userMintsNFTs(
   });
   if (shouldFail) {
     t.assert(res.failed);
+    t.is(numPriorHoldings, (await nftTokensForOwner(user, tenk)).length);
   } else {
     t.true(
       res.succeeded,
       [res.Failure, ...res.promiseErrorMessages].join("\n")
     );
-    const userBalanceAfter = (await user.balance()).available.toHuman();
-    t.log(`Balance After: ${userBalanceAfter}`);
     t.is(num, (await nftTokensForOwner(user, tenk)).length - numPriorHoldings);
   }
+  const userBalanceAfter = (await user.balance()).available.toHuman();
+  t.log(`Balance After: ${userBalanceAfter}`);
 }

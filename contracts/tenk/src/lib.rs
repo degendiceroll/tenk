@@ -385,6 +385,27 @@ impl Contract {
         self.mint_start_epoch = mint_start_epoch;
     }
 
+    pub fn update_premint_start_epoch(&mut self, premint_start_epoch: u64) {
+        self.assert_owner();
+        env::log_str(&format!(
+            "updating {} to {}",
+            self.premint_start_epoch, premint_start_epoch
+        ));
+        self.premint_start_epoch = premint_start_epoch;
+    }
+
+    pub fn update_base_cost(&mut self, base_cost: Balance) {
+        self.assert_owner();
+        env::log_str(&format!("updating {} to {}", self.base_cost, base_cost));
+        self.base_cost = base_cost;
+    }
+
+    pub fn update_min_cost(&mut self, min_cost: Balance) {
+        self.assert_owner();
+        env::log_str(&format!("updating {} to {}", self.min_cost, min_cost));
+        self.min_cost = min_cost;
+    }
+
     pub fn update_royalties(&mut self, royalties: Royalties) -> Option<Royalties> {
         self.assert_owner();
         royalties.validate();

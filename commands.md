@@ -32,7 +32,7 @@ yarn test:testnet __test__/dragon.ava.ts -c 1 -v --match="can get cost per token
 
 # Create new testnet account and deploy contract there
 
-near create-account app2.ndnflying.testnet --masterAccount ndnflying.testnet --initialBalance 15
+near create-account app3.flyingsaucertenk.testnet --masterAccount flyingsaucertenk.testnet --initialBalance 15
 # Edit scripts/deploy.ts
 yarn deploy:testnet
 

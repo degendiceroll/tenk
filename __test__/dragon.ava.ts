@@ -9,31 +9,10 @@ import {
   deployEmpty,
   deploy,
 } from "./util";
+import { createNewAccount, printBalance, userMintsNFTs } from "./dragon_utils";
 
 const base_cost = NEAR.parse("5 N");
 const min_cost = NEAR.parse("5 N");
-
-const createNewAccount = async (
-  root: NearAccount,
-  accountName: string,
-  initialBalance: string = "15 N"
-) => {
-  const account = await root.createAccount(accountName, {
-    initialBalance: NEAR.parse(initialBalance).toString(),
-  });
-  const accountAddress = account.accountId;
-  const accountBalance = await account.balance();
-  const accountBalanceHuman = accountBalance.available.toHuman();
-  console.log(`${accountAddress} created with balance ${accountBalanceHuman}`);
-  return account;
-};
-
-const printBalance = async (t, user: NearAccount) => {
-  const userAddress = user.accountId;
-  const userBalance = await user.balance();
-  const userBalanceHuman = userBalance.available.toHuman();
-  t.log(`${userAddress} has ${userBalanceHuman}`);
-};
 
 function createRoyalties({ root, alice, bob, eve }) {
   return {
@@ -137,35 +116,6 @@ async function assertXTokens(t, root: NearAccount, tenk, num) {
   });
 });
 
-async function userMintsNFTs(t, user: NearAccount, tenk, num) {
-  const numPriorHoldings = (await nftTokensForOwner(user, tenk)).length;
-  const method = num == 1 ? "nft_mint_one" : "nft_mint_many";
-  let args = num == 1 ? {} : { num };
-  const cost = await totalCost(tenk, num, user.accountId);
-
-  t.log(
-    "Cost for root to mint",
-    (await totalCost(tenk, num, "test.near")).toHuman()
-  );
-
-  t.log(
-    `${user.accountId} is minting: ${num} tokens costing ` + cost.toHuman()
-  );
-  const userBalanceBefore = (await user.balance()).available.toHuman();
-  t.log(`Balance Before: ${userBalanceBefore}`);
-  const res = await user.call_raw(tenk, method, args, {
-    attachedDeposit: cost,
-    gas: MINT_ONE_GAS,
-  });
-  t.true(res.succeeded, [res.Failure, ...res.promiseErrorMessages].join("\n"));
-  const userBalanceAfter = (await user.balance()).available.toHuman();
-  t.log(`Balance After: ${userBalanceAfter}`);
-  t.is(num, (await nftTokensForOwner(user, tenk)).length - numPriorHoldings);
-  if (num == 30 && Workspace.networkIsTestnet()) {
-    await deployEmpty(tenk);
-  }
-}
-
 [
   ["one", 1],
   ["two", 2],
@@ -195,7 +145,7 @@ async function mintingAllNFTs(
   deployer: NearAccount,
   tenk
 ) {
-  const whale = await createNewAccount(root, "whale", "2000 N");
+  const whale = await createNewAccount(t, root, "whale", "2000 N");
   for (let i = 0; i < 10; i++) {
     await userMintsNFTs(t, whale, tenk, 10);
     const tokens_left = await tenk.view("tokens_left");

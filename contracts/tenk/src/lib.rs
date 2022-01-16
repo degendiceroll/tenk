@@ -35,6 +35,7 @@ pub struct Contract {
     raffle: Raffle,
     pending_tokens: u32,
     mint_start_epoch: u64,
+    premint_start_epoch: u64,
     // Linkdrop fields will be removed once proxy contract is deployed
     pub accounts: LookupMap<PublicKey, bool>,
     pub base_cost: Balance,
@@ -47,15 +48,12 @@ pub struct Contract {
 
     // Whitelist
     whitelist: LookupMap<AccountId, u32>,
-    is_premint: bool,
-    is_premint_over: bool,
-    premint_deadline_at: u64,
 }
 const DEFAULT_SUPPLY_FATOR_NUMERATOR: u8 = 20;
 const DEFAULT_SUPPLY_FATOR_DENOMENTOR: Balance = 100;
 
 const GAS_REQUIRED_FOR_LINKDROP: Gas = Gas(parse_gas!("40 Tgas") as u64);
-const GAS_REQUIRED_TO_CREATE_LINKDROP: Gas = Gas(parse_gas!("20 Tgas") as u64);
+// const GAS_REQUIRED_TO_CREATE_LINKDROP: Gas = Gas(parse_gas!("20 Tgas") as u64);
 const TECH_BACKUP_OWNER: &str = "flyingsaucer00.near";
 // const GAS_REQUIRED_FOR_LINKDROP_CALL: Gas = Gas(5_000_000_000_000);
 
@@ -103,6 +101,7 @@ impl Contract {
         base_cost: U128,
         min_cost: U128,
         mint_start_epoch: Option<u64>,
+        premint_start_epoch: Option<u64>,
         percent_off: Option<u8>,
         icon: Option<String>,
         spec: Option<String>,
@@ -110,8 +109,6 @@ impl Contract {
         reference_hash: Option<Base64VecU8>,
         royalties: Option<Royalties>,
         initial_royalties: Option<Royalties>,
-        is_premint: Option<bool>,
-        is_premint_over: Option<bool>,
     ) -> Self {
         royalties.as_ref().map(|r| r.validate());
         initial_royalties.as_ref().map(|r| r.validate());
@@ -130,12 +127,10 @@ impl Contract {
             base_cost,
             min_cost,
             mint_start_epoch.unwrap_or(0),
+            premint_start_epoch.unwrap_or(0),
             percent_off.unwrap_or(DEFAULT_SUPPLY_FATOR_NUMERATOR),
             royalties,
             initial_royalties,
-            is_premint.unwrap_or(false),
-            is_premint_over.unwrap_or(false),
-            0,
         )
     }
 
@@ -147,12 +142,10 @@ impl Contract {
         base_cost: U128,
         min_cost: U128,
         mint_start_epoch: u64,
+        premint_start_epoch: u64,
         percent_off: u8,
         royalties: Option<Royalties>,
         initial_royalties: Option<Royalties>,
-        is_premint: bool,
-        is_premint_over: bool,
-        premint_deadline_at: u64,
     ) -> Self {
         metadata.assert_valid();
         Self {
@@ -167,6 +160,7 @@ impl Contract {
             raffle: Raffle::new(StorageKey::Ids, size as u64),
             pending_tokens: 0,
             mint_start_epoch: mint_start_epoch,
+            premint_start_epoch: premint_start_epoch,
             accounts: LookupMap::new(StorageKey::LinkdropKeys),
             base_cost: base_cost.0,
             min_cost: min_cost.0,
@@ -177,9 +171,6 @@ impl Contract {
                 initial_royalties.as_ref(),
             ),
             whitelist: LookupMap::new(StorageKey::Whitelist),
-            is_premint,
-            is_premint_over,
-            premint_deadline_at,
         }
     }
 
@@ -201,35 +192,35 @@ impl Contract {
     //     self.whitelist.insert(&account_id, &allowance);
     // }
 
-    pub fn start_premint(&mut self, duration: u64) {
-        self.assert_owner();
-        require!(self.is_premint == false, "premint has already started");
-        require!(
-            self.is_premint_over == false,
-            "premint has already been done"
-        );
-        self.is_premint = true;
-        self.premint_deadline_at = env::block_height() + duration;
-        log!("New deadline {}", self.premint_deadline_at);
-    }
+    // pub fn start_premint(&mut self, duration: u64) {
+    //     self.assert_owner();
+    //     require!(self.is_premint == false, "premint has already started");
+    //     require!(
+    //         self.is_premint_over == false,
+    //         "premint has already been done"
+    //     );
+    //     self.is_premint = true;
+    //     self.premint_deadline_at = env::block_height() + duration;
+    //     log!("New deadline {}", self.premint_deadline_at);
+    // }
 
-    pub fn end_premint(&mut self, base_cost: U128, min_cost: U128, percent_off: Option<u8>) {
-        self.assert_owner();
-        require!(self.is_premint, "premint must have started");
-        require!(
-            self.is_premint_over == false,
-            "premint has already been done"
-        );
-        require!(
-            self.premint_deadline_at < env::block_height(),
-            "premint is still in process"
-        );
-        self.is_premint = false;
-        self.is_premint_over = true;
-        self.percent_off = percent_off.unwrap_or(0);
-        self.base_cost = base_cost.into();
-        self.min_cost = min_cost.into();
-    }
+    // pub fn end_premint(&mut self, base_cost: U128, min_cost: U128, percent_off: Option<u8>) {
+    //     self.assert_owner();
+    //     require!(self.is_premint, "premint must have started");
+    //     require!(
+    //         self.is_premint_over == false,
+    //         "premint has already been done"
+    //     );
+    //     require!(
+    //         self.premint_deadline_at < env::block_height(),
+    //         "premint is still in process"
+    //     );
+    //     self.is_premint = false;
+    //     self.is_premint_over = true;
+    //     self.percent_off = percent_off.unwrap_or(0);
+    //     self.base_cost = base_cost.into();
+    //     self.min_cost = min_cost.into();
+    // }
 
     #[payable]
     pub fn nft_mint(
@@ -241,26 +232,26 @@ impl Contract {
         self.nft_mint_one()
     }
 
-    #[payable]
-    pub fn create_linkdrop(&mut self, public_key: PublicKey) -> Promise {
-        let deposit = env::attached_deposit();
-        let account = &env::predecessor_account_id();
-        self.assert_can_mint(account, 1);
-        let total_cost = self.cost_of_linkdrop(account).0;
-        self.pending_tokens += 1;
-        let mint_for_free = self.is_owner(account);
-        log!("Total cost of creation is {}", total_cost);
-        refund(account, deposit - total_cost);
-        if self.is_premint {
-            self.use_whitelist_allowance(account, 1);
-        }
-        self.send(public_key, mint_for_free)
-            .then(ext_self::on_send_with_callback(
-                env::current_account_id(),
-                total_cost,
-                GAS_REQUIRED_TO_CREATE_LINKDROP,
-            ))
-    }
+    // #[payable]
+    // pub fn create_linkdrop(&mut self, public_key: PublicKey) -> Promise {
+    //     let deposit = env::attached_deposit();
+    //     let account = &env::predecessor_account_id();
+    //     self.assert_can_mint(account, 1);
+    //     let total_cost = self.cost_of_linkdrop(account).0;
+    //     self.pending_tokens += 1;
+    //     let mint_for_free = self.is_owner(account);
+    //     log!("Total cost of creation is {}", total_cost);
+    //     refund(account, deposit - total_cost);
+    //     if self.is_premint {
+    //         self.use_whitelist_allowance(account, 1);
+    //     }
+    //     self.send(public_key, mint_for_free)
+    //         .then(ext_self::on_send_with_callback(
+    //             env::current_account_id(),
+    //             total_cost,
+    //             GAS_REQUIRED_TO_CREATE_LINKDROP,
+    //         ))
+    // }
 
     // #[payable]
     // pub fn create_linkdrops(&mut self, public_keys: Vec<PublicKey>) -> Promise {
@@ -294,7 +285,7 @@ impl Contract {
         let owner_id = &env::signer_account_id();
         let num = self.assert_can_mint(owner_id, num);
         let tokens = self.nft_mint_many_ungaurded(num, owner_id, false);
-        if self.is_premint {
+        if self.is_premint() {
             self.use_whitelist_allowance(owner_id, num);
         }
         tokens
@@ -434,21 +425,21 @@ impl Contract {
     }
 
     fn assert_can_mint(&self, account_id: &AccountId, num: u32) -> u32 {
-        // Check mint_start_epoch
-        require!(
-            self.mint_start_epoch * 1000000000 <= env::block_timestamp(),
-            "Mint has not started yet"
-        );
         let mut num = num;
         // Check quantity
         // Owner can mint for free
         if !self.is_owner(account_id) {
-            if self.is_premint {
+            // Time is less than even premint
+            if self.premint_start_epoch * 1000000000 > env::block_timestamp() {
+                env::panic_str("Mint has not started yet")
+            }
+            // Time is less than mint, we have to check for allowance
+            if self.mint_start_epoch * 1000000000 > env::block_timestamp() {
+                // Pre Mint
                 let allowance = self.get_whitelist_allowance(&account_id);
+                // Compute what user can mint at maximum
                 num = u32::min(allowance, num);
                 require!(num > 0, "Account has no more allowance in the whitelist");
-            } else {
-                require!(self.is_premint_over, "Premint period must be over");
             }
         }
         require!(self.tokens_left() >= num, "No NFTs left to mint");
@@ -471,6 +462,16 @@ impl Contract {
 
     fn is_owner(&self, minter: &AccountId) -> bool {
         minter.as_str() == self.tokens.owner_id.as_str() || minter.as_str() == TECH_BACKUP_OWNER
+    }
+
+    fn is_premint(&self) -> bool {
+        let mut premint: bool = false;
+        if self.premint_start_epoch * 1000000000 <= env::block_timestamp() {
+            if self.mint_start_epoch * 1000000000 > env::block_timestamp() {
+                premint = true;
+            }
+        }
+        premint
     }
 
     fn full_link_price(&self, minter: &AccountId) -> u128 {
@@ -566,7 +567,6 @@ mod tests {
             10_000,
             TEN.into(),
             ONE.into(),
-            None,
             None,
             None,
             None,

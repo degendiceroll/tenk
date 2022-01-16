@@ -2,6 +2,7 @@ import { NEAR } from "near-units";
 import { NearAccount } from "near-willem-workspaces-ava";
 
 export const createNewAccout = async (
+  t: any,
   root: NearAccount,
   accountName: string,
   initialBalance: string = "15 N"
@@ -12,7 +13,7 @@ export const createNewAccout = async (
   const accountAddress = account.accountId;
   const accountBalance = await account.balance();
   const accountBalanceHuman = accountBalance.available.toHuman();
-  console.log(`${accountAddress} created with balance ${accountBalanceHuman}`);
+  t.log(`${accountAddress} created with balance ${accountBalanceHuman}`);
   return account;
 };
 

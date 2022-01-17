@@ -42,6 +42,10 @@ yarn build && ts-node ./scripts/deploy.ts
 # Dragon deploy on testnet
 near create-account app7.flyingsaucertenk.testnet --masterAccount flyingsaucertenk.testnet --initialBalance 5
 yarn build && ts-node ./scripts/deploy-dragon.ts
+ts-node ./scripts/deploy-dragon-whitelist.ts
+
+# Dragon deploy on mainnet
+yarn build && ts-node ./scripts/deploy-dragon-main.ts
 
 # RPC Calls
 

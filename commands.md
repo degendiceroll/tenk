@@ -32,9 +32,16 @@ yarn test:testnet __test__/dragon.ava.ts -c 1 -v --match="can get cost per token
 
 # Create new testnet account and deploy contract there
 
-near create-account app5.flyingsaucertenk.testnet --masterAccount flyingsaucertenk.testnet --initialBalance 15
+near create-account app6.flyingsaucertenk.testnet --masterAccount flyingsaucertenk.testnet --initialBalance 5
 # Edit scripts/deploy.ts
 yarn deploy:testnet
+# OR
+yarn build && ts-node ./scripts/deploy.ts
+
+
+# Dragon deploy on testnet
+near create-account app7.flyingsaucertenk.testnet --masterAccount flyingsaucertenk.testnet --initialBalance 5
+yarn build && ts-node ./scripts/deploy-dragon.ts
 
 # RPC Calls
 
@@ -53,6 +60,8 @@ near call flyingsaucertenk.testnet total_cost --accountId flyingsaucertenk.testn
 near call flyingsaucertenk.testnet nft_mint_one --accountId flyingsaucertenk.testnet --deposit '0.01523'
 
 near state flyingsaucertenk.testnet
+
+near call app5.flyingsaucertenk.testnet tokens_left --accountId flyingsaucertenk.testnet
 
 near call app5.flyingsaucertenk.testnet get_wl_allowance --accountId flyingsaucertenk.testnet '{"account_id": "flyingsaucer00.testnet"}'
 

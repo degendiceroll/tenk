@@ -446,7 +446,6 @@ impl Contract {
     }
 
     fn assert_can_mint(&self, account_id: &AccountId, num: u32) -> u32 {
-        let mut num = num;
         // Check quantity
         // Owner can mint for free
         if !self.is_owner(account_id) {
@@ -458,14 +457,16 @@ impl Contract {
             if self.mint_start_epoch * 1000000000 > env::block_timestamp() {
                 // Pre Mint
                 let allowance = self.get_whitelist_allowance(&account_id);
-                // Compute what user can mint at maximum
-                num = u32::min(allowance, num);
-                require!(num > 0, "Account has no more allowance in the whitelist");
+                require!(
+                    allowance >= num,
+                    format!("Cannot mint {} when allowance is {}", num, allowance)
+                );
             }
         }
         require!(self.tokens_left() >= num, "No NFTs left to mint");
 
         if on_sale() {
+            // Assert if user has deposited the sufficient funds
             self.assert_deposit(num);
         } else {
             env::panic_str("Minting is not available")

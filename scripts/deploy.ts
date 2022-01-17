@@ -1,4 +1,5 @@
 import { Workspace, NEAR, Gas } from "near-willem-workspaces";
+import dayjs from "dayjs";
 
 import { CONTRACT_PATH } from "../__test__/util/bin";
 
@@ -29,7 +30,7 @@ const sale_price = NEAR.parse("5 N");
 // const contract = "zodiac.tenk.near";
 
 void Workspace.open(
-  { network, rootAccount: "app5.ndnflying.testnet" },
+  { network, rootAccount: "app5.flyingsaucertenk.testnet" },
   async ({ root }) => {
     const rootBalance = await root.availableBalance();
     // if (rootBalance.lt(NEAR.parse("350 N"))) {
@@ -47,11 +48,17 @@ void Workspace.open(
 
     const initial_royalties = {
       accounts: {
-        "flyingsaucertenk.testnet": 50,
-        "flyingsaucer00.testnet": 50,
+        "flyingsaucertenk.testnet": 30,
+        "flyingsaucer00.testnet": 30,
+        "tradefortendies.testnet": 40,
       },
       percent: 100,
     };
+
+    const epochNext120sec = dayjs().unix() + 120;
+    const epochNext600sec = dayjs().unix() + 600;
+
+    console.log({ epochNext120sec, epochNext600sec });
 
     const accountView = await root.accountView();
     const owner_id = root.accountId;
@@ -67,12 +74,25 @@ void Workspace.open(
             owner_id,
             name: "Near Dragon Nation",
             symbol: "NDN",
-            uri: "https://bafybeigulzte3aqfco5fmh6hxq7ul7qhdpguecx4aogoq4ejxp3w3cupdm.ipfs.dweb.link/",
-            size: 13,
+            uri: "https://bafybeidq7nu5pxsiy2cext6qtxxygpifhunxco25mtrabfge2rf6lxdax4.ipfs.dweb.link/",
+            description: "Dragons on NEAR.",
+            size: 3000,
             base_cost: sale_price,
             min_cost: sale_price,
             royalties,
             initial_royalties,
+            premint_start_epoch: epochNext120sec,
+            mint_start_epoch: epochNext600sec,
+          },
+          {
+            gas: Gas.parse("20 TGas"),
+          }
+        )
+        .functionCall(
+          "add_whitelist_account",
+          {
+            account_id: "flyingsaucer00.testnet",
+            allowance: 2,
           },
           {
             gas: Gas.parse("20 TGas"),

@@ -32,7 +32,7 @@ yarn test:testnet __test__/dragon.ava.ts -c 1 -v --match="can get cost per token
 
 # Create new testnet account and deploy contract there
 
-near create-account app3.flyingsaucertenk.testnet --masterAccount flyingsaucertenk.testnet --initialBalance 15
+near create-account app5.flyingsaucertenk.testnet --masterAccount flyingsaucertenk.testnet --initialBalance 15
 # Edit scripts/deploy.ts
 yarn deploy:testnet
 
@@ -53,4 +53,9 @@ near call flyingsaucertenk.testnet total_cost --accountId flyingsaucertenk.testn
 near call flyingsaucertenk.testnet nft_mint_one --accountId flyingsaucertenk.testnet --deposit '0.01523'
 
 near state flyingsaucertenk.testnet
+
+near call app5.flyingsaucertenk.testnet get_wl_allowance --accountId flyingsaucertenk.testnet '{"account_id": "flyingsaucer00.testnet"}'
+
+near call app5.flyingsaucertenk.testnet add_whitelist_account --accountId app5.flyingsaucertenk.testnet '{"account_id": "flyingsaucer00.testnet", "allowance": 2}'
+{ epochNext120sec: 1642362312, epochNext600sec: 1642362792 }
 ```
